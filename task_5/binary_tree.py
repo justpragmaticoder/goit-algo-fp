@@ -1,4 +1,5 @@
 import uuid
+from queue import Queue
 
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -60,10 +61,23 @@ def draw_binary_heap(heap_root):
     plt.show()
 
 
+def find_max_depth(node, depth=0):
+    if node:
+        left_depth = find_max_depth(node.left, depth + 1)
+        right_depth = find_max_depth(node.right, depth + 1)
+        return max(left_depth, right_depth)
+    else:
+        return depth
+
+
 def depth_first_traversal(node, colors, depth=0):
     if node:
+        max_depth = find_max_depth(node, depth)
         # Generate a unique color based on depth
-        color = (0.1, 0.1 + 0.6 * depth, 0.1)
+        color_intensity = 0.1 + 0.6 * (
+            depth / max_depth
+        )  # Adjusted depth-based color intensity
+        color = (0.1, color_intensity, 0.1)
 
         # Ensure color values are within the [0, 1] range
         color = tuple(min(max(val, 0), 1) for val in color)
@@ -77,17 +91,36 @@ def depth_first_traversal(node, colors, depth=0):
         depth_first_traversal(node.right, colors, depth + 1)
 
 
-def breadth_first_traversal(root, colors):
-    queue = [root]
+def to_hex(color):
+    return "#{:02x}{:02x}{:02x}".format(
+        int(color[0] * 255), int(color[1] * 255), int(color[2] * 255)
+    )
 
-    while queue:
-        node = queue.pop(0)
+
+def generate_shades(base_color, num_shades):
+    shades = []
+    for i in range(num_shades):
+        shade_factor = (i + 1) / num_shades
+        shade = (base_color[0], base_color[1] * shade_factor, base_color[2])
+        shades.append(shade)
+    return shades
+
+
+def breadth_first_traversal(root, colors):
+    base_color = (0.1, 0.7, 0.1)  # Base color (green in this example)
+    num_shades = 5  # Number of shades
+
+    shades_of_green = generate_shades(base_color, num_shades)
+
+    queue = Queue()
+    queue.put(root)
+
+    while not queue.empty():
+        node = queue.get()
 
         if node:
-            # Generate a unique color based on level
-            level = node.level
-            main_color = 1 if (0.1 + 0.6 * level) > 1 else 0.5
-            color = to_hex((0.1, main_color, 0.1))
+            # Use shades of green for each node
+            color = to_hex(shades_of_green[node.level % num_shades])
 
             # Visualization step
             print(f"Visiting node {node.val} with color {color}")
@@ -96,10 +129,10 @@ def breadth_first_traversal(root, colors):
             # Enqueue left and right children
             if node.left:
                 node.left.level = node.level + 1
-                queue.append(node.left)
+                queue.put(node.left)
             if node.right:
                 node.right.level = node.level + 1
-                queue.append(node.right)
+                queue.put(node.right)
 
 
 def draw_tree(tree_root, traversal_type):

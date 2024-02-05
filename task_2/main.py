@@ -1,32 +1,39 @@
 import turtle
 
 
-def draw_branch(branch_length, t, level):
+def draw_pythagoras_tree(tree, branch_length, angle, scale, level):
     if level == 0:
         return
     else:
-        t.forward(branch_length)
-        t.right(20)
-        draw_branch(branch_length - 15, t, level - 1)
-        t.left(40)
-        draw_branch(branch_length - 15, t, level - 1)
-        t.right(20)
-        t.backward(branch_length)
+        tree.forward(branch_length)
+        tree.left(angle)
+        draw_pythagoras_tree(tree, branch_length * scale, angle, scale, level - 1)
+        tree.right(2 * angle)
+        draw_pythagoras_tree(tree, branch_length * scale, angle, scale, level - 1)
+        tree.left(angle)
+        tree.backward(branch_length)
 
 
 def main():
     try:
-        recursion_level = int(input("Enter recursion level: "))
+        recursion_level = int(input("Enter recursion level (height of the tree): "))
         screen = turtle.Screen()
         screen.bgcolor("white")
 
-        t = turtle.Turtle()
-        t.speed(2)
-        t.color("green")
-        t.width(2)
+        tree = turtle.Turtle()
+        tree.speed(500)
+        tree.color("green")
+        tree.width(2)
 
-        t.left(90)
-        draw_branch(80, t, recursion_level)
+        tree.left(90)
+
+        start_angle = 25
+        scale = 0.7
+        start_tree_length = 120
+
+        draw_pythagoras_tree(
+            tree, start_tree_length, start_angle, scale, recursion_level
+        )
 
         screen.exitonclick()
     except KeyboardInterrupt:

@@ -1,7 +1,4 @@
-import networkx as nx
-import matplotlib.pyplot as plt
-from matplotlib.colors import to_hex
-from binary_tree import Node, add_edges, draw_tree
+from binary_tree import Node, draw_tree
 
 
 # Creating a binary tree
